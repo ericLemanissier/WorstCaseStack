@@ -1,4 +1,4 @@
-# pylint: disable = invalid-name, too-few-public-methods
+# pylint: disable = invalid-name, too-few-public-methods, broad-exception-raised
 
 import re
 import pprint
