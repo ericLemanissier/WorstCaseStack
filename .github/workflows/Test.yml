@@ -32,6 +32,11 @@ jobs:
     container: dockcross/linux-armv7
     steps:
     - uses: actions/checkout@v5
+    - name: Install python venv
+      run: |
+        apt-get update
+        apt-get install -y python3-venv
+        apt-get clean --yes 
     - name: Create Python virtual environment
       run: python3 -m venv path/to/venv
     - name: Install dependencies

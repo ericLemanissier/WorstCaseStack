@@ -160,9 +160,9 @@ class CallGraph:
         static_call = re.compile(r'^.*\(call.*"(.*)".*$')
         other_call = re.compile(r'^.*call .*$')
 
+        fxn_dict2: CallNode | None = None
         with open(tu + rtl_ext, "rt", encoding="latin_1") as file_:
             for line_ in file_:
-                fxn_dict2: CallNode | None = None
                 m = function.match(line_)
                 if m:
                     fxn_name = m.group(2)
@@ -178,19 +178,15 @@ class CallGraph:
 
                 m = static_call.match(line_)
                 if m:
-                    if not fxn_dict2:
-                        pprint.pprint(self)
-                        raise Exception(f"Error locating function {fxn_name} in {tu}")
-                    fxn_dict2['calls'].add(m.group(1))
+                    if fxn_dict2:
+                        fxn_dict2['calls'].add(m.group(1))
                     # print("Call:  {0} -> {1}".format(current_fxn, m.group(1)))
                     continue
 
                 m = other_call.match(line_)
                 if m:
-                    if not fxn_dict2:
-                        pprint.pprint(self)
-                        raise Exception(f"Error locating function {fxn_name} in {tu}")
-                    fxn_dict2['has_ptr_call'] = True
+                    if fxn_dict2:
+                        fxn_dict2['has_ptr_call'] = True
                     continue
 
     def read_su(self, tu: str) -> None:
