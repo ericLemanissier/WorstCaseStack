@@ -113,7 +113,7 @@ class CallGraph:
                 else:
                     raise Exception(f'Error Unknown Binding "{s.binding}" for symbol: {s.name}')
 
-    def find_fxn(self, tu: str, fxn: str):
+    def find_fxn(self, tu: str, fxn: str) -> CallNode | None:
         """
         Looks up the dictionary associated with the function.
         :param self: a object used to store information about each function
@@ -129,7 +129,7 @@ class CallGraph:
         except KeyError:
             return None
 
-    def find_demangled_fxn(self, tu: str, fxn: str):
+    def find_demangled_fxn(self, tu: str, fxn: str) -> CallNode | None:
         """
         Looks up the dictionary associated with the function.
         :param self: a object used to store information about each function
@@ -162,6 +162,7 @@ class CallGraph:
 
         with open(tu + rtl_ext, "rt", encoding="latin_1") as file_:
             for line_ in file_:
+                fxn_dict2: CallNode | None = None
                 m = function.match(line_)
                 if m:
                     fxn_name = m.group(2)
@@ -236,7 +237,7 @@ class CallGraph:
         .calls, .has_ptr_call, .local_stack, .scope, .src_line
         """
 
-        def validate_dict(d):
+        def validate_dict(d: CallNode):
             if not ('calls' in d and 'has_ptr_call' in d and 'local_stack' in d
                     and 'name' in d and 'tu' in d):
                 print(f"Error data is missing in fxn dictionary {d}")
@@ -295,9 +296,6 @@ class CallGraph:
 
             print(row_format.format(fxn_dict2['tu'], fxn_dict2['demangledName'], stack, unresolved_str))
 
-        def get_order(val) -> int:
-            return 1 if val == 'unbounded' else -val
-
         # Loop through every global and local function
         # and resolve each call, save results in r_calls
         d_list = []
@@ -308,7 +306,7 @@ class CallGraph:
             for fxn_dict in l_dict.values():
                 d_list.append(fxn_dict)
 
-        d_list.sort(key=lambda item: get_order(item['wcs']))
+        d_list.sort(key=lambda item: 1 if item['wcs'] == 'unbounded' else -item['wcs'])
 
         # Calculate table width
         tu_width = max(max(len(d['tu']) for d in d_list), 16)
