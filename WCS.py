@@ -178,12 +178,18 @@ class CallGraph:
 
                 m = static_call.match(line_)
                 if m:
+                    if not fxn_dict2:
+                        pprint.pprint(self)
+                        raise Exception(f"Error locating function {fxn_name} in {tu}")
                     fxn_dict2['calls'].add(m.group(1))
                     # print("Call:  {0} -> {1}".format(current_fxn, m.group(1)))
                     continue
 
                 m = other_call.match(line_)
                 if m:
+                    if not fxn_dict2:
+                        pprint.pprint(self)
+                        raise Exception(f"Error locating function {fxn_name} in {tu}")
                     fxn_dict2['has_ptr_call'] = True
                     continue
 
@@ -204,6 +210,9 @@ class CallGraph:
                 if m:
                     fxn = m.group(4)
                     fxn_dict2 = self.find_demangled_fxn(tu, fxn)
+                    if not fxn_dict2:
+                        pprint.pprint(self)
+                        raise Exception(f"Error locating function {fxn} in {tu}")
                     fxn_dict2['local_stack'] = int(m.group(5))
                 else:
                     print(f"error parsing line {i} in file {tu}")
@@ -237,7 +246,7 @@ class CallGraph:
         .calls, .has_ptr_call, .local_stack, .scope, .src_line
         """
 
-        def validate_dict(d: CallNode):
+        def validate_dict(d: CallNode) -> None:
             if not ('calls' in d and 'has_ptr_call' in d and 'local_stack' in d
                     and 'name' in d and 'tu' in d):
                 print(f"Error data is missing in fxn dictionary {d}")
